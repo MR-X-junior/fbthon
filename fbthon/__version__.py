@@ -1,0 +1,8 @@
+__title__ = "fbthon"
+__description__ = "Simple Facebook scraper"
+__url__ = "https://github.com/MR-X-Junior/fbthon"
+__version__ = "0.0.1"
+__author__ = "Rahmat adha"
+__author_email__ = "rahmadadha11@gmail.com"
+__license__ = "MIT"
+__copyright__ = "Copyright Rahmat adha"
