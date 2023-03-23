@@ -115,7 +115,7 @@ Menambahkan Feeling pada postingan
   >>> # Untuk menambahkab feeling pada postingan, lu bisa menggunakan argumen 'feeling'
   >>> fb.create_timeline('me','Postingan ini di sertai dengan feeling', feeling = 'Happy')
 Mengatur filter pada foto
-  >>> # Untuk mengatur filter pada foto, lu bisa menggunakan argumen 'filter_type', value bawaan dari argumen ini adalah '-1'
+  >>> # Untuk mengatur filter pada foto, lu bisa menggunakan argumen 'filter_type', default dari argumen ini adalah '-1'
   >>> fb.create_timeline('me', file = 'img.jpg', filter_type = '1')
   >>> # Filter Type
   >>> -1 = Tanpa Filter
@@ -336,8 +336,10 @@ class Facebook(Cookie_Login):
       b = bs4(a.text,'html.parser')
 
       for khaneysia in b.findAll('a', href = re.compile('^\/photo\.php')):
+        if len(rahmat) >= limit: break
+
         img_data = {'author':None, 'username':None,'link':None, 'preview':None, 'post_url':self.__host + khaneysia['href'], 'upload_time':None}
-        preview_url = khaneysia.find_next('img', src = re.compile('https:\/\/z-m-scontent'))
+        preview_url = khaneysia.find_next('img', src = re.compile('https:\/\/(z-m-scontent|scontent)'))
 
         get_img = self.__session.get(self.__host + khaneysia['href'])
         res_img = bs4(get_img.text,'html.parser')
@@ -390,7 +392,7 @@ class Facebook(Cookie_Login):
           for rahmet in neysia.findAll('a', href = re.compile('^\/video_redirect\/')):
             rahmet_data = {'link':None, 'id':None, 'preview':None, 'file-size':None, 'content-type':'video/mp4'}
             video = re.search('src=(.*)', requests.utils.unquote(rahmet['href']))
-            preview = rahmet.find_next('img', src = re.compile('^https:\/\/z-m-scontent'))
+            preview = rahmet.find_next('img', src = re.compile('^https:\/\/(z-m-scontent|scontent)'))
 
             if video is not None:
               rahmet_data['link'] = video.group(1)
