@@ -55,7 +55,7 @@ Untuk mengurangi risiko akun terkena checkpoint, kamu hanya perlu mengganti user
 - **password**: Password akun Facebook
 - **save_login**:  Menyimpan informasi login, default argument ini adalah `True`
 - **free_facebook**: Gunakan `True` jika ingin menggukan web [free.facebook.com](https://free.facebook.com), default argument ini adalah `False`
-- **headers**: Headers ini  yang akan di gunakan untuk `requests`
+- **headers**: ini  yang akan di gunakan untuk headers `requests`
 
 ### Extract Profile
 
@@ -126,6 +126,8 @@ Hello World 🌍
 17 Mei 2021 pukul 13.15
 >>> post.post_datetime
 datetime.datetime(2021, 5, 17, 21, 15, 17)
+>>> post.get_react()
+{'like': 5652, 'love': 310, 'care': 9, 'haha': 6, 'wow': 252, 'sad': 0, 'angry': 1}
 ```
 
 #### Mengirim Komentar
@@ -302,6 +304,21 @@ True
 #### Hasilnya
 ![Membuat Postingan (Dengan Foto)](https://i.ibb.co/d4nKvVr/Screenshot-2023-0318-151426.png)
 
+Oh iya, kamu bisa menggunakan argumen `filter_type` untuk mengatur filter pada foto yang akan kamu upload.
+
+```python
+>>> fb.create_timeline(target = 'me', message = ' Alhamdulillah :)', file = '/sdcard/Pictures/Certificate/mimo-certificates-125_page-0001.jpg', filter_type='1')
+True
+```
+
+Dan Ini hasil nya:
+
+![Mengatur filter pada foto](https://i.ibb.co/twf0tnc/Screenshot-2023-0323-082948.png)
+
+**Ada beberapa tipe filter yang bisa kamu coba, di antaranya:**
+- Tanpa Filter = -1
+- Hitam Putih = 1
+- Retro = 2
 
 ### Membuat Postingan (Dengan Lokasi)
 Kamu bisa menggunakan argumen `location` untuk menambahkan lokasi pada postingan
