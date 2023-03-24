@@ -16,7 +16,6 @@ def SetFacebookSite(fbobj, set_to):
     fbobj._session.headers.clear()
     fbobj._session.headers.update(default_head)
     a = fbobj._session.get(fbobj._host + '/settings/site')
-    print ("error")
 
   b = bs4(a.text,'html.parser')
   c = b.find('form', action = re.compile('^\/a\/preferences\.php')) # form
