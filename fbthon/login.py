@@ -1,5 +1,5 @@
 """
-facebook.login
+fbthon.login
 --------------
 Module Ini Di gunakan untuk login ke akun Facebook
 """
