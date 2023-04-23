@@ -25,7 +25,7 @@ with open('README.md','r',encoding = 'utf-8') as doc:
 setup(
   name = 'fbthon',
   packages = ['fbthon'],
-  version = '0.0.1',
+  version = '0.0.2',
   license='MIT',
   description = 'Simple Facebook scraper',
   long_description=readme,
@@ -36,6 +36,7 @@ setup(
   keywords = ['facebook-scraper', 'facebook-parser', 'facebook-scraper-without-apikey'],
   python_requires=">=3.7",
   install_requires=[
+          'requests_toolbelt',
           'requests',
           'bs4',
       ],

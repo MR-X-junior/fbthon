@@ -6,8 +6,8 @@
 *Author :* [**Rahmat adha**](https://facebook.com/Anjay.pro098)\
 *Library :* [**fbthon**](https://github.com/MR-X-Junior/fbthon)\
 *License:* [**MIT License**](https://github.com/MR-X-junior/fbthon/blob/main/LICENSE)\
-*Release:* **23**/03/20**23**\
-*Version :* **0.0.1**
+*Release:* **23**/04/20**23**\
+*Version :* **0.0.2**
 
 Di karenakan library ini masih versi pertama, pasti bakal banyak error/bug nya, jika menemukan error/bug pada library ini bisa langsung posting di [Issues](https://github.com/MR-X-junior/fbthon/issues) akun github saya :)
 
@@ -25,7 +25,7 @@ Di karenakan library ini masih versi pertama, pasti bakal banyak error/bug nya, 
 
 ```python
 >>> from fbthon import Facebook
->>> from fbthon.login import Web_Login
+>>> from fbthon import Web_Login
 >>> email = "example@gmail.com" # Ganti email ini dengan email akun Facebook kamu
 >>> password = "Banteng merah no counter321" # Ganti password ini dengan password Akun Facebook kamu
 >>> login = Web_Login(email,password)
@@ -39,7 +39,7 @@ Untuk mengurangi risiko akun terkena checkpoint, kamu hanya perlu mengganti user
 
 ```python
 >>> from fbthon import Facebook
->>> from fbthon.login import Web_Login
+>>> from fbthon import Web_Login
 >>> user_agent = {'User-Agent':'Mozilla/5.0 (Linux; Android 6.0.1; SM-J510GN Build/MMB29M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.111 Mobile Safari/537.36'}
 >>> email = "example@gmail.com" # Ganti email ini dengan email akun Facebook kamu
 >>> password = "Banteng merah no counter321" # Ganti password ini dengan password Akun Facebook kamu
@@ -84,6 +84,56 @@ Rahmat
 /Anjay.pro098
 >>> my_profile._user_info
 {'name': 'Rahmat', 'first_name': 'Rahmat', 'middle_name': '', 'last_name': '', 'alternate_name': 'Mat', 'about': '', 'username': '/Anjay.pro098', 'id': '100053033144051', 'contact_info': {'Ponsel': '0857-5462-9509', 'Facebook': '/Anjay.pro098', 'GitHub': 'MR-X-Junior', 'LinkedIn': 'rahmat-adha', 'Email': 'rahmadadha11@gmail.com'}, 'profile_pict': 'https://z-m-scontent.fsri1-1.fna.fbcdn.net/v/t39.30808-1/279908382_524601785984255_7727931677642432211_n.jpg?stp=cp0_dst-jpg_e15_p480x480_q65&_nc_cat=109&ccb=1-7&_nc_sid=dbb9e7&efg=eyJpIjoiYiJ9&_nc_eui2=AeEUCqxtmlmkSmx4EruhJj1ZoWFvcSuRApChYW9xK5ECkKEzjdDols3I7WDmPnas34nC8SsOQFYFy3zM38AIJfS1&_nc_ohc=XqfoPIkQwfkAX9oxiI4&tn=CoPUyHV9TcgsBjnY&_nc_ad=z-m&_nc_cid=1225&_nc_eh=4613fe15e78ad080e57d79ac328ba3a7&_nc_rml=0&_nc_ht=z-m-scontent.fsri1-1.fna&oh=00_AfByqAVLNVMSOfwr6pe43Iwr3HpWeVg0qImeiROkpw53rw&oe=63FCE8CF', 'basic_info': {'Tanggal Lahir': '13 Januari 2006', 'Jenis Kelamin': 'Laki-laki'}, 'education': [{'name': '', 'type': '', 'study': '', 'time': ''}], 'work': [], 'living': [{'Kota Saat Ini': 'Muaraancalung, Kalimantan Timur, Indonesia', 'Kota asal': 'Muaraancalung, Kalimantan Timur, Indonesia'}], 'relationship': 'Lajang', 'other_name': {'Nama panggilan': 'Met'}, 'family': [{'name': 'Pahrul Aguspriana XD.', 'username': '/PahrulXD', 'designation': 'Adik laki-laki', 'profile_pict': 'https://z-m-scontent.fsri1-1.fna.fbcdn.net/v/t39.30808-1/331028920_3040847712882567_3539568768564278719_n.jpg?stp=c0.0.320.320a_cp0_dst-jpg_e15_p320x320_q65&_nc_cat=101&ccb=1-7&_nc_sid=dbb9e7&efg=eyJpIjoiYiJ9&_nc_eui2=AeEW2pBM_jo0ZzypEALp1QB7eG7Nm80Gj5J4bs2bzQaPkmGYk_gZVtPSzsrb1SX796_BwslIoWRa_4yIuFC3x1Fh&_nc_ohc=NjtS1hHD7GcAX9Sp4HY&_nc_ad=z-m&_nc_cid=1225&_nc_eh=4613fe15e78ad080e57d79ac328ba3a7&_nc_rml=0&_nc_ht=z-m-scontent.fsri1-1.fna&oh=00_AfBGUpSnDzv3tHfsng6gWLn2ZGjNwSaFXzDLeCnlWv9Lsg&oe=63FDEBC2'}], 'year_overviews': [], 'quote': "i know i'm not alone"}
+```
+
+### Update Profile Picture
+Kamu bisa menggunakan function `UpdateProfilePicture` untuk mengganti poto profile akun Facebook kamu.
+
+**Contoh:**
+
+```python
+from fbthon import settings
+from fbthon import Facebook
+
+fb = Facebook("datr=klr23aug21xxxxxxx") # Cookie Akun Facebook 
+
+settings.UpdateProfilePicture(fb, photo = '/sdcard/DCIM/Orang-Susah.jpg')
+```
+
+#### Hasilnya
+
+##### Sebelum 
+
+![Before Update Profile Picture](https://i.ibb.co/tzpq34P/IMG-20230419-202908.jpg)
+
+##### Sesudah
+
+![After Update Profile Picture](https://i.ibb.co/wJCp0HD/IMG-20230419-203029.jpg)
+
+### Get Notifications
+Kamu bisa menggunakan method `get_notifications` untuk mendapatkan notifikasi terbaru dari akun Facebook.
+
+**Contoh:**
+
+```python
+no = fb.get_notifications(limit = 2)
+
+for chaa in no:
+  print ("Message : "+ chaa['message'])
+  print ("Time : "+ chaa['time'])
+  print ("Redirect URL : "+ chaa['redirect_url'] + "\n")
+```
+
+**Output:**
+
+```
+Message : Berdasarkan halaman yang berinteraksi dengan Anda, Anda mungkin menyukai Meme Upin Ipin Comic Lucu.                               
+Time : 11 Apr                                                         
+Redirect URL : https://mbasic.facebook.com/a/notifications.php?redir=%2Fgroups%2F426298749190770%2F&seennotification=1681152051803754&eav=AfbWn5_N4XPZ0dL2bdBlHmCJIqmlGanPyx8_K3EuoQ47EREpeYdQtHn-1DmRfQaTNE0&gfid=AQDZ4pcYOl5JlPJd0uw&paipv=0&refid=48                                 
+
+Message : Berdasarkan halaman yang berinteraksi dengan Anda, Anda mungkin menyukai Mukbang Yummy Food.                                      
+Time : 8 Apr
+Redirect URL : https://mbasic.facebook.com/a/notifications.php?redir=%2Fgroups%2F340989278132975%2F&seennotification=1680900355646527&eav=AfZlnRarakilRKNOhz6fPULFLUjDyccZvOhpJFhWEAy2un9H6EbgdPZ7Zii39UuMazc&gfid=AQBuf1_B6NbYKhXjCv8&paipv=0&refid=48
 ```
 
 ### Get Posts
@@ -148,6 +198,22 @@ True
 
 ![Contoh cara mengirim komentar](https://i.ibb.co/QFDpnw9/Screenshot-20230322-064024.jpg)
 
+Untuk menambahkan foto pada komentar, kamu bisa menggunakan argument `file`
+
+**Contoh:**
+
+```python
+>>> post = fb.post_parser('https://m.facebook.com/story.php?story_fbid=pfbid02kTobxSiD9buMUEjrq57FFnhQ6FJyGnafmNhMimoaamoAwuECAjboYaB6mE7C7pPZl&id=100053033144051&mibextid=Nif5oz')
+>>> post.send_comment("Komentar ini tidak di sertai dengan foto!")
+True
+>>> post.send_comment("Komentar ini di sertai dengan foto!", file = "/sdcard/DCIM/Facebook/FB_IMG_1681559707400.jpg")
+True
+```
+
+##### Hasilnya
+
+![Contoh cara mengirim komentar dengan foto](https://i.ibb.co/6vd6BQc/IMG-20230418-110223.jpg)
+
 #### Memberikan react pada postingan
 
 Kamu bisa menggunakan method `send_react` untuk memberikan react pada postingan.
@@ -178,6 +244,32 @@ True
 ##### Hasilnya
 ![Contoh cara memberikan react ke postingan](https://i.ibb.co/SPXGWJJ/Screenshot-2023-0322-065521.png)
 
+##### Membagikan Postingan
+Kamu bisa menggunakan method `share_post` untuk membagikan postingan seseorang ke akun Facebook kamu.
+
+**Contoh (1):**
+
+```python
+post = fb.post_parser("https://m.facebook.com/story.php?story_fbid=pfbid0gxnxN5dZDDA93S2GveyxqgSzEdYdAtdE32PYyAd7iftDS7yBHprBACc9VcFXDoPtl&id=100053033144051&mibextid=Nif5oz")
+post.share_post()
+```
+
+##### Hasilnya
+
+![Contoh cara membagikan postingan](https://i.ibb.co/F39c30w/IMG-20230419-064244.jpg)
+
+**Contoh (2):**
+
+Kamu juga bisa menambahkan `message`,`location` dan `feeling` pada postingan yang di bagikan.
+
+```python
+post = fb.post_parser("https://m.facebook.com/story.php?story_fbid=pfbid0gxnxN5dZDDA93S2GveyxqgSzEdYdAtdE32PYyAd7iftDS7yBHprBACc9VcFXDoPtl&id=100053033144051&mibextid=Nif5oz")
+post.share_post(message = "Postingan ini di bagikan menggunakan library fbthon", location = "Kuningan Timur", feeling = "Happy")
+```
+
+##### Hasilnya
+![Contoh cara membagikan postingan dengan message,location, dan feeling](https://i.ibb.co/7J1wzB2/IMG-20230419-070541.jpg)
+
 ### Messenger
 
 object `Messenger` bisa di gunakan untuk mengirim/menerima chat.\
@@ -191,7 +283,7 @@ Terdapat 2 cara untuk membuat Object `Messenger`
 **Cara 2**
 
 ```python
->>> from fbthon.messenger import Messenger
+>>> from fbthon import Messenger
 >>> msg = Messenger(Cookie_Akun_Facebook_kamu)
 ```
 
@@ -255,6 +347,21 @@ with msg.new_chat('zuck') as chat:
 
 ##### Hasilnya
 ![Contoh Cara Mengirim Pesan](https://i.ibb.co/fQHtDmb/Screenshot-20230317-222932.jpg)
+
+Kamu bisa menggunakan method `send_image` untuk mengirim chat dengan foto.
+
+**Contoh:**
+
+```python
+with msg.new_chat("Anjay.pro098") as chat:
+  chat.send_text("Hallo kak "+chat.name)
+  chat.send_text("Pesan ini di kirim menggunakan library fbthon :)")
+  chat.send_image(file = "/sdcard/DCIM/Facebook/FB_IMG_1681559707400.jpg",message = "Aku ketika nunggu buka puasa : ")
+  chat.send_like_stiker()
+```
+
+##### Hasilnya
+![Contoh Cara mengirim chat dengan foto](https://i.ibb.co/FVgZ7Mf/IMG-20230418-184806.jpg)
 
 ## Membuat Postingan
 method `create_timeline` bisa di gunakan untuk membuat postingan, method ini akan mengembalikan `True` jika berhasil membuat postingan.
@@ -342,6 +449,70 @@ True
 #### Hasilnya
 ![Membuat Postingan (Dengan Feeling)](https://i.ibb.co/n7yp62b/Screenshot-2023-0318-152335.png)
 
+### Create a facebook account
+Kamu bisa menggunakan class `CreateAccount` untuk membuat akun Facebook.
+
+**CATATAN: Fitur ini masih dalam tahap percobaan, jadi kemungkinan besar fitur ini tidak akan bekerja dengan baik.**
+
+#### Contoh:
+
+Di bawah ini adalah program sederhana untuk membuat akun Facebook.
+
+```python
+from fbthon import CreateAccount
+
+print ("[+] Daftar Akun Facebook [+]\n")
+
+firstname = input("[?] Nama Depan : ") # Nama Depan
+lastname = input("[?] Nama Belakang : ") # Nama Belakang
+email = input("[?] Email/Phone : ") # Alamat email / No Hp
+gender = input("[?] Jenis Kelamin(Male/Female): ") # Gender
+ultah = input("[?] Tanggal Lahir (DD/MM/YYYY): ") # Tanggal lahir
+password = input("[?] Password : ")  # Kata Sandi
+
+new_account = CreateAccount(firstname = firstname, lastname = lastname, email = email, gender = gender, date_of_birth = ultah, password = password)
+
+print ("\n[+] Masukkan Kode Verifikasi yang sudah di kirim ke "+ email)
+kode = input("[?] Kode Verifikasi : ")
+
+# Method `confirm_account` akan mengembalikan `True` Jika berhasil mengkonfirmasi akun.
+konfir = new_account.confirm_account(kode)
+
+if konfir:
+  print ("[✓] Berhasil Membuat Akun Facebook :)\n")
+  print ("[+] Nama Akun : %s %s" % (firstname,lastname))
+  print ("[+] ID Akun : %s" % (new_account.get_cookie_dict()['c_user']))
+  print ("[+] Email/Phone : %s" % (email))
+  print ("[+] Jenis Kelamin : %s" % (gender))
+  print ("[+] Tanggal lahir : %s" % (ultah))
+  print ("[+] Password : %s" % (password))
+  print ("[+] Cookie Akun : %s" % (new_account.get_cookie_str()))
+  print ("[+] Token Akun : %s" % (new_account.get_token()))
+  sys.exit(0)
+else:
+  print ("[!] Gagal Membuat Akun Facebook ")
+  sys.exit(1)
+```
+
+##### Jalankan Program nya
+![Menjalankan script Contoh cara membuat akun Facebook menggunakan library fbthon](https://i.ibb.co/2Sd19Wc/Screenshot-2023-0420-093249.png)
+
+###### Hasilnya 
+Ini adalah akun yang di buat menggunakan library fbthon:)
+
+![Ini adalah akun Facebook yang di buat menggunakan library fbthon](https://i.ibb.co/7K3q3hj/Screenshot-20230420-093826.jpg)
+
+#### Optional Parameter
+*(Untuk `CreateAccount` class)*.
+
+- **firstname**: Nama Depan
+- **lastname**: Nama Belakang
+- **email**: Alamat email yang akan di gunakan untuk mendaftar akun facebook, kamu juga bisa menggunakan nomor ponsel sebagai pengganti alamat email.
+- **gender**: Jenis kelamin (Male/Female)
+- **date_of_birth**: Tanggal lahir, untuk format tanggal lahir nya adalah DD/MM/YYYY, Contoh: 13/01/2006
+- **password**: Kata sandi yang akan di gunakan untuk membuat akun Facebook.
+
+
 # Cara Install
 
 **fbthon** sudah tersedia di PyPi
@@ -350,7 +521,7 @@ True
 $ python -m pip install fbthon
 ```
 
-**fbthon** bisa install di Python versi 3.7+
+**fbthon** bisa di install di Python versi 3.7+
 
 # Donate
 [![Donate for Rahmat adha](https://i.ibb.co/PwYMWsK/Saweria-Logo.png)](https://saweria.co/rahmatadha)
