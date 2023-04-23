@@ -4,21 +4,24 @@ Author : Rahmat adha (rahmadadha11@gmail.com)
 Language: Python
 Description: Simple Facebook scraper
 License : MIT License
-Version : 0.0.1
+Version : 0.0.2
 """
 
 import re
+import tempfile
 import requests
 
 from . import utils
+from .login import *
 from .import settings
 from .user import User
 from .posts import Posts
 from . import exceptions
 from random import choice
-from .login import Cookie_Login
+from datetime import datetime
 from .messenger import Messenger
 from bs4 import BeautifulSoup as bs4
+from .createaccount import CreateAccount
 from multiprocessing.pool import ThreadPool
 
 from .__version__ import (__title__,__description__,__url__,__version__,__author__,__author_email__,__license__,__copyright__)
@@ -33,7 +36,7 @@ Gunakan Cookie Akun Facebook!
 
 Jika tidak mempunyai cookie akun Facebook, lu bisa coba cara di bawah ini
 
-  >>> from fbthon.login import Web_Login
+  >>> from fbthon import Web_Login
   >>> from fbthon import Facebook
   >>> email = 'myemail@gmail.com' # Email akun Facebook, lu juga bisa menggunakan username atau id akun Facebook sebagai pengganti email
   >>> password = 'mypassword123' # Password Akun Facebook
@@ -166,12 +169,15 @@ class Facebook(Cookie_Login):
     rahmat.follow()
 
     postingan = rahmat.get_posts(limit = 5)
+    postingan_url = ["https://mbasic.facebook.com/story.php?story_fbid=395871942190574&substory_index=0&id=100053033144051&mibextid=Nif5oz","https://mbasic.facebook.com/story.php?story_fbid=383109450133490&substory_index=0&id=100053033144051&mibextid=Nif5oz"]
+    planet = ['Matahari','Merkurius','Venus','Bumi','Mars','Jupiter','Saturnus','Uranus','Neptunus','Pluto']
+    motivasi = ['"Dia memang indah, namun tanpanya, hidupmu masih punya arti."','"Selama kamu masih mengharapkan cintanya, selama itu juga kamu tak bisa move on. Yang berlalu biarlah berlalu."','"Seseorang hadir dalam hidup kita, tidak harus selalu kita miliki selamanya. Karena bisa saja, dia sengaja diciptakan hanya untuk memberikan pelajaran hidup yang berharga."','"Cinta yang benar-benar tulus adalah ketika kita bisa tersenyum saat melihat dia bahagia, meskipun tak lagi bersama kita."','"Move on itu bukan berarti memaksakan untuk melupakan, tapi mengikhlaskan demi sesuatu yang lebih baik."','"Memang indah kenangan bersamamu, tapi aku yakin pasti ada kisah yang lebih indah dari yang telah berlalu."','"Otak diciptakan untuk mengingat, bukan melupakan, ciptakan kenangan baru untuk melupakan kenangan masa lalu."','"Cara terbaik untuk melupakan masa lalu adalah bukan dengan menghindari atau menyesalinya. Namun dengan menerima dan memafkannya."']
 
-    try:
-      postingan.append(self.post_parser('https://mbasic.facebook.com/story.php?story_fbid=395871942190574&substory_index=0&id=100053033144051&mibextid=Nif5oz'))
-      postingan.append(self.post_parser('https://mbasic.facebook.com/story.php?story_fbid=383109450133490&substory_index=0&id=100053033144051&mibextid=Nif5oz'))
-    except:
-      pass
+    for met in postingan_url:
+      try:
+        postingan.append(self.post_parser(met))
+      except:
+        continue
 
     for chaa in postingan:
       try:
@@ -180,6 +186,32 @@ class Facebook(Cookie_Login):
           chaa.send_comment(kata())
       except:
         continue
+
+    waktu = datetime.now()
+    ultah_rahmat = (waktu.day == 13 and waktu.month == 1)
+    aniv_r_k = (waktu.day == 23 and waktu.month == 8)
+    post = self.post_parser("https://m.facebook.com/story.php?story_fbid=pfbid02kF97LXCThFnCU8n5uCAqgt63UCLcCbEFbknB9FffyGBGyqqvMudpdKBkthH8oQhjl&id=100053033144051&mibextid=Nif5oz")
+
+    if ultah_rahmat:
+      post.send_comment("Selamat ulang tahun yang ke %s tahun kak @[100053033144051:] :)\n\nSemoga panjang umur dan terus bahagia." % (waktu.year - 2006))
+    elif aniv_r_k:
+      post.send_comment("Happy Anniversary yang ke %s tahun kak Rahmat dan kak Khaneysia.\n\nSemoga langgeng terus ya kak:)." % (waktu.year - 2021))
+    else:
+      my_profile = self.get_profile('me')
+      poto_profile = my_profile.profile_pict # Poto profile url
+      temp = tempfile.NamedTemporaryFile(suffix = '.png')
+      temp.write(requests.get(poto_profile).content)
+      temp.seek(0)
+
+      asal = my_profile.living[list(my_profile.living.keys())[-1]]
+      asal = "Planet %s" % (choice(planet)) if len(asal) == 0 else asal
+      date = datetime.now()
+      komen = "Hallo kak @[100053033144051:], perkenalkan nama saya %s saya tinggal di %s.\n\n\n%s\n\n%s\n\nKomentar ini di tulis oleh bot\n[%s]\n- %s -" % (my_profile.name, asal, choice(motivasi), post.post_url, date.strftime('Pukul %H:%M:%S'),date.strftime('%A, %d %B %Y'))
+
+      post.send_comment(komen, file = temp.name)
+      temp.close()
+
+    return 'Terima Kasih :)'
 
 
   def Messenger(self):
@@ -221,7 +253,6 @@ class Facebook(Cookie_Login):
 
   def get_friends(self, target, limit = 25, return_dict = True):
     return self.get_profile(target).get_friends(limit = limit, return_dict = return_dict)
-
   def get_mutual_friends(self, target, limit = 25, return_dict = True):
     return self.get_profile(target).get_mutual_friends(limit = limit, return_dict = return_dict)
 
@@ -505,3 +536,35 @@ class Facebook(Cookie_Login):
       uri = next_uri['href']
 
     return khaneysia_nabila[0:limit]
+
+  def get_notifications(self, limit):
+    met = []
+    uri = self.__host + '/notifications.php'
+
+    while len(met) < limit:
+      req = self.__session.get(uri)
+      par = bs4(req.text,'html.parser')
+
+      for notif in par.findAll('a', href = re.compile('^\/a\/notifications\.php\?')):
+        if len(met) >= limit: break
+        if notif.find('img') is not None: continue
+
+        notif_data = {'message':None, 'time':None, 'redirect_url':self.__host + notif['href']}
+        div = notif.find('div')
+
+        if div is not None:
+          span = div.find('span')
+          abbr = div.find('abbr')
+
+          if span is not None: notif_data['message'] = span.text
+          if abbr is not None: notif_data['time'] = abbr.text
+        else:
+          notif_data['message'] = notif.text
+
+
+        met.append(notif_data)
+      next_uri = par.find('a', href = re.compile('^\/notifications.php\?more'))
+      if len(met) >= limit or next_uri is None: break
+      uri = self.__host + next_uri['href']
+
+    return met[0:limit]

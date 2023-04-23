@@ -1,15 +1,17 @@
 """
-facebook.posts
+fbthon.posts
 --------------
 Parsing Post data
 """
 
+import os
 import re
 import json
 import codecs
 import requests
 import multiprocessing
 
+from . import utils
 from . import exceptions
 from datetime import datetime
 from .comments import Comments
@@ -19,11 +21,22 @@ class Posts:
 
   def __init__(self, requests_session, post_url, ft_data = {}):
     if not re.match("https:\/\/((?:(?:.*?)\.facebook.com|facebook\.com)\/((\d+|groups|[a-zA-Z0-9_.-]+)\/(\d+|posts|videos)\/(?:\d+|permalink\/\d+|\w+)|story\.php\?story_fbid|photo\.php\?fbid=\w+|watch(?:\/\?|\?)v=\d+)|fb\.(?:gg|watch)\/\w+)",post_url): raise exceptions.FacebookError('"%s" Bukanlah URL Yang valid, coba periksa kembali URl anda!!!!' % (post_url))
+    if re.match('https:\/\/fb\.watch\/(?:.*?)\/',post_url):
+      vid_id = re.search('https:\/\/fb\.watch\/(.*?)\/',post_url)
+      if vid_id is not None:
+        post_url = "https://fb.gg/v/%s/" % (vid_id.group(1))
 
     self.__session = requests_session
     self.__host = ('https://'+self.__session.headers['host'] if 'host' in self.__session.headers.keys() else "https://mbasic.facebook.com")
 
-    self.__req = self.__session.get(post_url)
+    try:
+      self.__req = self.__session.get(post_url)
+    except requests.exceptions.TooManyRedirects:
+      head = {'User-Agent':self.__session.headers['User-Agent']}
+      self.__session.headers.clear()
+      self.__session.headers.update(head)
+      self.__req = self.__session.get(post_url)
+
     self.__res = bs4(self.__req.text,'html.parser')
 
     if self.__res.find('a', href = re.compile('\/home\.php\?rand=\d+')): raise exceptions.PageNotFound("Postingan tidak di temukan, postingan tersebut mungkin sudah di hapus atau mungkin anda tidak memiliki izin untuk melihat postingan tersebut!!!")
@@ -42,7 +55,6 @@ class Posts:
       raise exceptions.FacebookError(err)
 
     div_article = self.__res.find('div', role = 'article')
-
     if div_article is not None:
       self.__res = div_article
       url = self.__res.find('a', href = re.compile('(\/story\.php\?story_fbid|https:\/\/(.*?)\.facebook\.com\/groups\/\d+\/permalink/)'), class_ = False, attrs = {'data-ft':False})
@@ -168,15 +180,28 @@ class Posts:
       b = bs4(self.__session.get(self.__host + next_uri['href']).text,'html.parser')
     return {'react_type':re.search('reaction_type=(\d+)',data[0]).group(1),'user':Moya_M}
 
-  def send_comment(self, message):
+  def send_comment(self, message, file = None):
     if self.__form_komen is None: raise exceptions.FacebookError('Tidak dapat menulis komentar di postingan ini!!!')
 
-    komen_action = self.__host + self.__form_komen["action"]
-    message = codecs.decode(message, 'unicode_escape')
-    komen_data = {i.get('name'):i.get('value') for i in self.__form_komen.findAll('input')}
-    komen_data['comment_text'] = message
+    message = codecs.decode(codecs.encode(message,'unicode_escape'),'unicode_escape')
 
-    kirim = self.__session.post(komen_action, data = komen_data)
+    if file is not None:
+      view_photo = self.__res.find('input', attrs = {'name':'view_photo','type':'submit'})
+      form = view_photo.find_previous('form', action = re.compile('\/a\/comment\.php\?'))
+      form_data = {i.get('name'):i.get('value') for i in form.findAll('input', attrs = {'type':'hidden'})}
+      form_data['view_photo'] = view_photo.get('value')
+      z_upload = self.__session.post(self.__host + form['action'], data = form_data)
+      z_upload_form = bs4(z_upload.text,'html.parser').find('form', action = re.compile('https:\/\/(z-upload\.facebook\.com|upload\.facebook\.com)'))
+      z_upload_data = {i.get('name'):(None,i.get('value')) for i in z_upload_form.findAll('input', attrs = {'type':'hidden'})}
+      z_upload_data['comment_text'] = (None, message)
+
+      kirim = utils.upload_photo(requests_session = self.__session, upload_url = z_upload_form['action'], input_file_name = 'photo', file_path = file, fields = z_upload_data)
+    else:
+      komen_action = self.__host + self.__form_komen["action"]
+      komen_data = {i.get('name'):i.get('value') for i in self.__form_komen.findAll('input')}
+      komen_data['comment_text'] = message
+
+      kirim = self.__session.post(komen_action, data = komen_data)
 
     return kirim.ok
 
@@ -253,3 +278,80 @@ class Posts:
 
 
     return react_data
+
+  def share_post(self, message = '', location = None, feeling = None, **kwargs):
+    message = codecs.decode(codecs.encode(message,'unicode_escape'),'unicode_escape')
+    share_url = self.__res.find('a', href = re.compile('^\/composer\/mbasic\/(\?|\/?)c_src=share'))
+    if share_url is None: raise exceptions.FacebookError('Tidak dapat membagikan postingan ini :(')
+
+    req = self.__session.get(self.__host + share_url['href'])
+    res = bs4(req.text,'html.parser')
+
+    form = res.find('form', method = 'post', action = re.compile('^\/composer\/mbasic'))
+
+    if form is not None:
+      data = {chaa.get('name'):chaa.get('value') for chaa in form.findAll('input', attrs = {'type':'hidden'})}
+      data_other = {echaa.get('name'):echaa.get('value') for echaa in form.findAll('input', attrs = {'type':'submit'})}
+
+      if location is not None:
+        location_data = data.copy()
+        location_data['view_location'] = data_other['view_location']
+
+        lokasi_data = {}
+        lokasi_url = self.__session.post(self.__host + form['action'], data = location_data)
+        lokasi_parse = bs4(lokasi_url.text,'html.parser')
+
+        lokasi_form = lokasi_parse.find('form', action = re.compile('^\/places\/selector'))
+        for x in lokasi_form.findAll('input'): lokasi_data[x.get('name')] = x.get('value')
+
+        lokasi_data.update({'query':location})
+        cari_lokasi = self.__session.get(self.__host + lokasi_form['action'], params = lokasi_data)
+
+        ketemu = bs4(cari_lokasi.text,'html.parser').find('a', href = re.compile('\/composer\/mbasic\/(.*)at=\d+'))
+        if ketemu is None: raise exceptions.FacebookError("Lokasi dengan nama \"%s\" tidak di temukan!!!!" % (location))
+
+        id_lokasi = re.search('at=(\d+)', ketemu['href']).group(1)
+        data.update({'at':id_lokasi})
+
+      if feeling is not None:
+        feeling = feeling.lower()
+        feeling_data = data.copy()
+        feeling_data['view_minutiae'] = data_other['view_minutiae']
+
+        perasaan_data = {}
+        perasaan_url = self.__session.post(self.__host + form['action'], feeling_data)
+        perasaan_parse = bs4(perasaan_url.text,'html.parser')
+
+        perasaan_ku = perasaan_parse.find('a', href = re.compile('\/composer\/mbasic\/\?ogaction=\d+'), attrs = {'aria-hidden':False})
+        kunjungi_hati_ku = self.__session.get(self.__host + perasaan_ku['href'])
+        hati_parse = bs4(kunjungi_hati_ku.text,'html.parser')
+        perasaan_list = {i.text.lower():i['href'] for i in hati_parse.findAll('a', href = re.compile('\/composer\/mbasic\/\?ogaction='))}
+
+        if feeling in perasaan_list.keys(): feeling_ku = self.__host + perasaan_list[feeling]
+        else:
+          perasaan_form = hati_parse.find('form', action = re.compile('\/composer\/mbasic'))
+          params = {i.get('name'):i.get('value') for i in perasaan_form.findAll('input')}
+          params['mnt_query'] = feeling
+
+          cari_perasaan = self.__session.get(self.__host + perasaan_form["action"], params = params)
+          feeling_ku = self.__host + bs4(cari_perasaan.text,'html.parser').find('a', href = re.compile('\/composer\/mbasic\/\?ogaction='), attrs = {'aria-hidden':False})['href']
+
+        feeling_url = self.__session.get(feeling_ku)
+
+        for x in bs4(feeling_url.text,'html.parser').findAll('input'):
+          if x.get('name') in data_other.keys(): continue
+          data[x.get('name')] = x.get('value')
+
+      data.update(**kwargs)
+      data['view_post'] = data_other['view_post']
+      data.update({form.find('textarea').get('name'):message})
+
+      post = self.__session.post(self.__host + form['action'], data = data)
+      post_response = bs4(post.text,'html.parser')
+
+      if post_response.find('a', href = re.compile('^\/bugnub\/(\?|\/\?)source=Error')):
+        err_div = post_response.find('div', id = 'root')
+        err_msg = ("Terjadi Kesalahan!" if err_div is None else err_div.find('div', class_ = True).get_text(separator = '\n'))
+        raise exceptions.FacebookError(err_msg)
+
+      return post.ok

@@ -4,6 +4,7 @@ import codecs
 import requests
 import traceback
 
+from . import utils
 from . import exceptions
 from bs4 import BeautifulSoup as bs4
 
@@ -151,7 +152,8 @@ class Chats:
     if self.__send_url is None: raise exceptions.FacebookError('Tidak dapat mengirim pesan kepada %s' % (self.name))
     if not re.match('^\S',message): raise exceptions.FacebookError('Panjang pesan minimal 1 karakter, dan harus di awali dengan non-white space character!!.')
 
-    message = codecs.decode(message, 'unicode_escape')
+    message = codecs.decode(codecs.encode(message,'unicode_escape'),'unicode_escape')
+
     data = self.__data.copy()
     data.update({'body':message})
     res = self.__session.post(self.__send_url, data = data)
@@ -164,13 +166,33 @@ class Chats:
 
     return res.ok
 
+  def send_image(self, file, message = ''):
+    if self['blocked']: raise exceptions.FacebookError('Pesan tidak bisa di kirim karena anda telah memblokir akun "%s"!!!' % (self['name']))
+    if self.__send_url is None: raise exceptions.FacebookError('Tidak dapat mengirim pesan kepada %s' % (self.name))
+
+    message = codecs.decode(codecs.encode(message,'unicode_escape'),'unicode_escape')
+    form = self.__res.find('form', action = re.compile('https:\/\/(?:z-upload|upload)\.facebook\.com'))
+
+    if form is None:
+      data = self.__data.copy()
+      data['send_photo'] = self.__data_other['send_photo']
+      post = self.__session.post(self.__send_url, data = data)
+      form = bs4(post.text,'html.parser').find('form', action = re.compile('https:\/\/(?:z-upload|upload)\.facebook\.com'))
+
+    form_data = {i.get('name'):(None,i.get('value')) for i in form.findAll('input', attrs = {'name':True,'type':'hidden'})}
+    form_data['body'] = (None, message)
+
+    submit = utils.upload_photo(requests_session = self.__session, upload_url = form['action'], input_file_name = 'file1', file_path = file, fields = form_data)
+
+    return submit.ok
+
   def send_like_stiker(self):
     if self.__send_url is None: raise exceptions.FacebookError('Tidak dapat mengirim pesan kepada %s' % (self.name))
 
     if self['blocked']: raise exceptions.FacebookError('Stiker tidak bisa di kirim karena anda telah memblokir akun "%s"!!!' % (self['name']))
 
     data = self.__data.copy()
-    data['like'] = self.__data_other['like']
+    data['like'] = (self.__data_other['like'] if 'like' in self.__data_other.keys() else 'like')
 
     req = self.__session.post(self.__send_url, data = data)
 

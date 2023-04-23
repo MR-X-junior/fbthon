@@ -46,7 +46,7 @@ class User:
                        'basic_info':{},
                        'education':[],
                        'work':[],
-                       'living':[],
+                       'living':{},
                        'relationship':'',
                        'other_name':[],
                        'family':[],
@@ -67,7 +67,7 @@ class User:
     self.basic_info = {}
     self.education = []
     self.work = []
-    self.living = []
+    self.living = {}
     self.relationship = ''
     self.other_name = []
     self.family = []
@@ -82,9 +82,10 @@ class User:
 
     # Nama
     if name is not None:
-      alt_name = name.find('span')
+      alt_name = name.find('span', attrs = {'class':'alternate_name'})
       if alt_name is not None:
-        self.alternate_name = re.sub('^\(|\)$','',alt_name.text)
+        self.alternate_name = re.sub('\(|\)$','',alt_name.text)
+        alt_name.extract()
         pisah = name.text.split(' ')
         pisah.pop()
       else:
@@ -162,16 +163,10 @@ class User:
       for rumah_mantan in rumah.findAll('a', href = re.compile('\/editprofile\.php')):
         rumah_mantan.extract()
 
-      rumah_ku = rumah.findAll(text = True)
-      rumah_ku.pop(0)
+      for span in rumah.findAll('span', attrs = {'aria-hidden':True}):
+        span.extract()
 
-      if ' · ' in rumah_ku:
-        for x in range(len(rumah_ku)):
-          if rumah_ku[x] != ' · ': continue
-          rumah_ku.remove(rumah_ku[x])
-          rumah_ku.insert(x,'')
-
-      self.living.append(self.__list_to_dict(rumah_ku))
+      self.living.update(self.__list_to_dict([i.text for i in rumah.findAll('td')][2:]))
 
     # Informasi Tentang Nama Lain
 
@@ -645,7 +640,7 @@ class User:
     return post_data[0:limit]
 
   def create_timeline(self, message, file = None, location = None,feeling = None,filter_type = '-1', **kwargs):
-    message = codecs.decode(message, 'unicode_escape')
+    message = codecs.decode(codecs.encode(message,'unicode_escape'),'unicode_escape')
 
     form = self.__res.find('form', method = 'post', action = re.compile('^\/composer\/mbasic'))
     data = {}
@@ -658,7 +653,6 @@ class User:
       form = b.find('form', method = 'post', action = re.compile('^\/composer\/mbasic'))
 
     if form is None: raise exceptions.FacebookError('Tidak dapat menulis timeline ke akun %s' % (self.name))
-#    if not os.path.exists(file): raise FileNotFoundError("File %s Tidak di temukan!" % (file))
 
     for x in form.findAll("input"):
       if x.get('name') in data_other_list_key:

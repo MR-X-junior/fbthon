@@ -91,7 +91,7 @@ class Messenger:
         uid = None
 
         if name is not None:
-          uid = re.search('tid=cid\.c\.(\d+):',requests.utils.unquote(name['href'])).group(1)
+          uid = re.search('tid=cid\.(?:c|g)\.(\d+)',requests.utils.unquote(name['href'])).group(1)
 
         name = (name.text if name is not None else None)
         message = (message.text if message is not None else None)

@@ -1,6 +1,7 @@
 import re
 import requests
 
+from . import utils
 from . import exceptions
 from bs4 import BeautifulSoup as bs4
 
@@ -126,3 +127,26 @@ def ChangePassword(fbobj, old_pass, new_pass, keep_session = False):
       else:
         last_req = fbobj._session.get(fbobj._host + res.find('a', href = re.compile('^\/settings\/security_login\/sessions\/log_out_all\/confirm'))['href'])
         return last_req.ok
+
+def UpdateProfilePicture(fbobj, photo):
+  a = fbobj._session.get(fbobj._host + '/me?v=info')
+  b = bs4(a.text,'html.parser')
+  c = b.find('a', href = re.compile('^\/profile_picture(\?|\/\?)'))
+
+  if c is not None:
+    d = fbobj._session.get(fbobj._host + c['href'])
+    e = bs4(d.text,'html.parser')
+  else:
+    c = b.find('a', href = re.compile('^\/photo\.php(\?|\/\?)'), attrs = {'id':True})
+    if c is None: raise exceptions.FacebookError('Tidak dapat mengganti Poto Profile')
+    d = bs4(fbobj._session.get(fbobj._host + c['href']).text,'html.parser').find('a', href = re.compile('^\/photos\/change\/profile_picture'))
+    e = bs4(fbobj._session.get(fbobj._host + d['href']).text,'html.parser')
+
+  upload = e.find('a', href = re.compile('^\/photos\/upload(\?|\/\?)profile_pic'))
+  if upload is not None: e = bs4(fbobj._session.get(fbobj._host + upload['href']).text,'html.parser')
+
+  form = e.find('form', action = re.compile('https:\/\/(z-upload\.facebook\.com|upload\.facebook\.com)'))
+  data = {moya.get('name'):moya.get('value') for moya in form.findAll('input', attrs = {'type':'hidden'})}
+  kirim = utils.upload_photo(requests_session = fbobj._session, upload_url = form['action'], input_file_name = 'pic', file_path = photo, fields = data)
+
+  return kirim.ok

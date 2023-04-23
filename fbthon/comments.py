@@ -2,6 +2,7 @@ import re
 import codecs
 import requests
 
+from . import utils
 from . import exceptions
 from bs4 import BeautifulSoup as bs4
 
@@ -88,19 +89,18 @@ class Comments:
     return (self.__comment_info[item] if item in self.__comment_info.keys() else None)
 
   def __str__(self):
-    return "Facebook Comments: author='%s' username='%s' comment_text='%s' user_tag=%s time='%s'" % (self.__comment_info['author'],self.__comment_info['username'],self.__comment_info['comment_text'],self.__comment_info['user_tag'],self.__comment_info['time'])
+    return "Facebook Comments: author='%s' username='%s' comment_text='%r' user_tag=%s time='%s'" % (self.__comment_info['author'],self.__comment_info['username'],self.__comment_info['comment_text'],self.__comment_info['user_tag'],self.__comment_info['time'])
 
   def __repr__(self):
-    return "Facebook Comments: author='%s' username='%s' comment_text='%s' user_tag=%s time='%s'" % (self.__comment_info['author'],self.__comment_info['username'],self.__comment_info['comment_text'],self.__comment_info['user_tag'],self.__comment_info['time'])
+    return "Facebook Comments: author='%s' username='%s' comment_text='%r' user_tag=%s time='%s'" % (self.__comment_info['author'],self.__comment_info['username'],self.__comment_info['comment_text'],self.__comment_info['user_tag'],self.__comment_info['time'])
 
   def reply(self, message):
     reply_url = self.__html_parser.find('a', href = re.compile('^\/comment\/replies\/'))
     if reply_url is None: raise exceptions.FacebookError('Tidak dapat membalas komentar '+ str(self['author']))
+    message = codecs.decode(codecs.encode(message,'unicode_escape'),'unicode_escape')
 
-    message = codecs.decode(message, 'unicode_escape')
     a = self.__session.get(self.__host + reply_url['href'])
     b = bs4(a.text,'html.parser')
-
     c = b.find('form', action = re.compile('\/a\/comment\.php\?'))
     d = {i.get('name'):i.get('value') for i in c.findAll('input')}
     d['comment_text'] = message
