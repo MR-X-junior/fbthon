@@ -459,6 +459,7 @@ Kamu bisa menggunakan class `CreateAccount` untuk membuat akun Facebook.
 Di bawah ini adalah program sederhana untuk membuat akun Facebook.
 
 ```python
+import sys
 from fbthon import CreateAccount
 
 print ("[+] Daftar Akun Facebook [+]\n")
