@@ -20,6 +20,7 @@ class Messenger:
 
     self.__session = login._session
     self.__host = login._host
+    self.__idku = login.get_cookie_dict()['c_user']
 
     req = self.__session.get(self.__host + '/messages')
     res = bs4(req.text,'html.parser')
@@ -92,6 +93,8 @@ class Messenger:
 
         if name is not None:
           uid = re.search('tid=cid\.(?:c|g)\.(\d+)',requests.utils.unquote(name['href'])).group(1)
+          if uid == self.__idku:
+            uid = re.search('tid=cid\.(?:c|g)\.(\d+):(\d+)',requests.utils.unquote(name['href'])).group(2)
 
         name = (name.text if name is not None else None)
         message = (message.text if message is not None else None)
