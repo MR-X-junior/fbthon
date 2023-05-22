@@ -20,7 +20,7 @@ class Messenger:
 
     self.__session = login._session
     self.__host = login._host
-    self.__idku = login.get_cookie_dict()['c_user']
+    self.__idku = re.search("c_user=(\d+)",login.get_cookie_str()).group(1)
 
     req = self.__session.get(self.__host + '/messages')
     res = bs4(req.text,'html.parser')

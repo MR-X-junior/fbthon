@@ -118,7 +118,7 @@ class Chats:
       data['chat'].append(uh)
 
       for jpg in i.findAll('a', href = re.compile('\/messages\/attachment_preview')):
-        link = jpg.find_next('img', src = re.compile('^https:\/\/z-m-scontent(\.fbpn4-1\.fna\.fbcdn\.net|\.fsri(.*?)\.fna\.fbcdn\.net)'))
+        link = jpg.find_next('img', src = re.compile('^https:\/\/(z-m-scontent|scontent)'))
         if link is None: continue
         content_id = re.search("(\d+_\d+_\d+)",link['src']).group(1)
         preview = self.__host + jpg['href']
